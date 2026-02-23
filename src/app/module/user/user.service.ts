@@ -1,3 +1,5 @@
+import status from "http-status";
+import AppError from "../../../errorHelper/AppError";
 import { Role, Specialty } from "../../../generated/prisma/client";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
@@ -12,7 +14,7 @@ const createDoctor = async (payload: ICreateDoctorPayload) => {
       },
     });
     if (!specialty) {
-      throw new Error(`Specialty with id ${specialtyId} not found`);
+      throw new AppError(status.NOT_FOUND,`Specialty with id ${specialtyId} not found`);
     }
     specialties.push(specialty);
   }
@@ -22,7 +24,7 @@ const createDoctor = async (payload: ICreateDoctorPayload) => {
     },
   });
   if (userExists) {
-    throw new Error("User with this email already exists in the database");
+    throw new AppError(status.CONFLICT,"User with this email already exists in the database");
   }
   const userData = await auth.api.signUpEmail({
     body: {
