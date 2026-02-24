@@ -37,7 +37,25 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
       });
       return patientTx;
     });
-    return { ...data, patient };
+    const accessToken = tokenUtils.getAccessToken({
+      userId: data.user.id,
+      role: data.user.role,
+      name: data.user.name,
+      email: data.user.email,
+      status: data.user.status,
+      isDeleted: data.user.isDeleted,
+      emailVerified: data.user.emailVerified,
+    });
+    const refreshToken = tokenUtils.getAccessToken({
+      userId: data.user.id,
+      role: data.user.role,
+      name: data.user.name,
+      email: data.user.email,
+      status: data.user.status,
+      isDeleted: data.user.isDeleted,
+      emailVerified: data.user.emailVerified,
+    });
+    return { ...data, patient, accessToken, refreshToken };
   } catch (error) {
     console.log("Transaction error:", error);
     await prisma.user.delete({
