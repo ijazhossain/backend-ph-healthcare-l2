@@ -3,6 +3,7 @@ import AppError from "../../../errorHelper/AppError";
 import { UserStatus } from "../../../generated/prisma/enums";
 import { auth } from "../../lib/auth";
 import { prisma } from "../../lib/prisma";
+import { tokenUtils } from "../../utils/token";
 
 interface IRegisterPatientPayload {
   name: string;
@@ -23,7 +24,7 @@ const registerPatient = async (payload: IRegisterPatientPayload) => {
     },
   });
   if (!data.user) {
-    throw new AppError(status.BAD_REQUEST,"Failed to register patient");
+    throw new AppError(status.BAD_REQUEST, "Failed to register patient");
   }
   try {
     const patient = await prisma.$transaction(async (tx) => {
@@ -56,14 +57,33 @@ const loginUser = async (payload: ILoginUserPayload) => {
     },
   });
   if (data.user.status === UserStatus.BLOCKED) {
-    throw new AppError(status.FORBIDDEN,"User is blocked");
+    throw new AppError(status.FORBIDDEN, "User is blocked");
   }
   if (data.user.isDeleted || data.user.status === UserStatus.DELETED) {
-    throw new AppError(status.NOT_FOUND,"User is deleted");
+    throw new AppError(status.NOT_FOUND, "User is deleted");
   }
+  const accessToken = tokenUtils.getAccessToken({
+    userId: data.user.id,
+    role: data.user.role,
+    name: data.user.name,
+    email: data.user.email,
+    status: data.user.status,
+    isDeleted: data.user.isDeleted,
+    emailVerified: data.user.emailVerified,
+  });
+  const refreshToken = tokenUtils.getAccessToken({
+    userId: data.user.id,
+    role: data.user.role,
+    name: data.user.name,
+    email: data.user.email,
+    status: data.user.status,
+    isDeleted: data.user.isDeleted,
+    emailVerified: data.user.emailVerified,
+  });
 
-  return data;
+  return { ...data, accessToken, refreshToken };
 };
+
 export const AuthService = {
   registerPatient,
   loginUser,
