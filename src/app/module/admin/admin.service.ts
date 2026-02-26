@@ -83,4 +83,4 @@ const deleteAdmin = async (id: string, user: IRequestUser) => {
   });
   return result;
 };
-export const adminService = { getAllAdmins, getAdminById, updateAdmin ,deleteAdmin};
+export const AdminService = { getAllAdmins, getAdminById, updateAdmin ,deleteAdmin};
