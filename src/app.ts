@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import express, { Application, Request, Response } from "express";
-
+import cron from "node-cron";
 import { IndexRoutes } from "./app/routes";
 import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 import { notFound } from "./app/middleware/notFound";
@@ -11,6 +12,7 @@ import cors from "cors";
 import { envVars } from "./config/env";
 import qs from "qs";
 import { PaymentController } from "./app/module/payment/payment.controller";
+import { AppointmentService } from "./app/module/appointment/appointment.service";
 const app: Application = express();
 //qs
 app.set("query parser", (str: string) => qs.parse(str));
@@ -49,6 +51,15 @@ app.use("/api/auth", toNodeHandler(auth));
 // Enable URL-encoded form data parsing
 app.use(express.urlencoded({ extended: true }));
 
+//for node-corn
+cron.schedule("*/25 * * * *", async () => {
+    try {
+        console.log("Running cron job to cancel unpaid appointments...");
+        await AppointmentService.cancelUnpaidAppointments();
+    } catch (error : any) {
+        console.error("Error occurred while canceling unpaid appointments:", error.message);    
+    }
+})
 // Middleware to parse JSON bodies
 app.use(express.json());
 app.use(cookieParser());
