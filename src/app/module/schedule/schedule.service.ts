@@ -1,6 +1,9 @@
 import { addHours, addMinutes, format } from "date-fns";
 import { prisma } from "../../lib/prisma";
-import { ICreateSchedulePayload, IUpdateSchedulePayload } from "./schedule.interface";
+import {
+  ICreateSchedulePayload,
+  IUpdateSchedulePayload,
+} from "./schedule.interface";
 import { IQueryParams } from "../../interfaces/query.interface";
 import { Prisma, Schedule } from "../../../generated/prisma/client";
 import { QueryBuilder } from "../../utils/QueryBuilder";
@@ -10,7 +13,6 @@ import {
   scheduleSearchableFields,
 } from "./schedule.constant";
 import { convertDateTime } from "./schedule.utils";
-
 
 const createSchedule = async (payload: ICreateSchedulePayload) => {
   const { startDate, endDate, startTime, endTime } = payload;
@@ -92,14 +94,15 @@ const getAllSchedules = async (query: IQueryParams) => {
 
   return result;
 };
-const getScheduleById = async (id:string) => {
-    const schedule = await prisma.schedule.findUnique({
-        where: {
-            id: id
-        }
-    });
-    return schedule;
+const getScheduleById = async (id: string) => {
+  const schedule = await prisma.schedule.findUnique({
+    where: {
+      id: id,
+    },
+  });
+  return schedule;
 };
+//refactoring- doctor's appointment or booked slot conflict check
 const updateSchedule = async (id: string, payload: IUpdateSchedulePayload) => {
   const { startDate, endDate, startTime, endTime } = payload;
   const startDateTime = new Date(
