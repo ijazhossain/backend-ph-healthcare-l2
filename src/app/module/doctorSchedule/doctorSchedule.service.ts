@@ -10,6 +10,7 @@ const createMyDoctorSchedule = async (
   user: IRequestUser,
   payload: ICreateDoctorSchedulePayload,
 ) => {
+   
   const doctorData = await prisma.doctor.findUniqueOrThrow({
     where: {
       email: user.email,

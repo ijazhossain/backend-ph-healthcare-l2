@@ -17,6 +17,7 @@ const bookAppointment = async (
   payload: IBookAppointmentPayload,
   user: IRequestUser,
 ) => {
+   console.log(user);
   const patientData = await prisma.patient.findFirstOrThrow({
     where: {
       email: user.email,
@@ -30,7 +31,7 @@ const bookAppointment = async (
   });
   const scheduleData = await prisma.schedule.findFirstOrThrow({
     where: {
-      id: payload.doctorId,
+      id: payload.scheduleId,
     },
   });
   const doctorSchedule = await prisma.doctorSchedules.findUniqueOrThrow({
@@ -264,7 +265,7 @@ const bookAppointmentWithPayLater = async (
       },
     },
   });
-  const videoCallingId = String(uuidv7);
+  const videoCallingId = String(uuidv7());
   const result = await prisma.$transaction(async (tx) => {
     const appointmentData = await tx.appointment.create({
       data: {
@@ -285,7 +286,7 @@ const bookAppointmentWithPayLater = async (
         isBooked: true,
       },
     });
-    const transactionId = String(uuidv7);
+    const transactionId = String(uuidv7());
     const paymentData = await tx.payment.create({
       data: {
         appointmentId: appointmentData.id,
