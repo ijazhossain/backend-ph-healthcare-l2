@@ -17,7 +17,7 @@ const updatePatientProfileZodSchema = z.object({
         .optional(),
       address: z
         .string("Address must be a string")
-        .min(1, "Adress can not be empty")
+        .min(1, "Address can not be empty")
         .max(200, "Address must be less than 200 characters")
         .optional(),
     })

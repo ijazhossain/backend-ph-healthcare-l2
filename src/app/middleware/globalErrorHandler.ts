@@ -7,7 +7,7 @@ import z from "zod";
 import { TErrorResponse, TErrorSources } from "../interfaces/error.interface";
 import { handleZodError } from "../../errorHelper/handleZodError";
 import AppError from "../../errorHelper/AppError";
-import { deleteFileFromCloudinary } from "../../config/cloudinary.config";
+import { deleteUploadedFilesFromGlobalErrorHandler } from "../utils/deleteUploadedFilesFromGlobalErrorHandler";
 
 export const globalErrorHandler = async (
   err: any,
@@ -15,17 +15,37 @@ export const globalErrorHandler = async (
   res: Response,
   next: NextFunction,
 ) => {
-  if (req.file) {
-    await deleteFileFromCloudinary(req.file.path);
-  }
-  if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-    const imageUrls = req.files.map((file) => file.path);
-    await Promise.all(imageUrls.map((url) => deleteFileFromCloudinary(url)))
-  }
+  // if (req.file) {
+  //   await deleteFileFromCloudinary(req.file.path);
+  // }
+  // if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+  //   const imageUrls = req.files.map((file) => file.path);
+  //   await Promise.all(imageUrls.map((url) => deleteFileFromCloudinary(url)))
+  // }
+   await deleteUploadedFilesFromGlobalErrorHandler(req);
   let errorSources: TErrorSources[] = [];
   let statusCode: number = status.INTERNAL_SERVER_ERROR;
   let message: string = "Internal Server error";
   let stack: string | undefined = undefined;
+
+   //Zod Error Pattern
+    /*
+     error.issues; 
+    /* [
+      {
+        expected: 'string',
+        code: 'invalid_type',
+        path: [ 'username' , 'password' ], => username password
+        message: 'Invalid input: expected string'
+      },
+      {
+        expected: 'number',
+        code: 'invalid_type',
+        path: [ 'xp' ],
+        message: 'Invalid input: expected number'
+      }
+    ] 
+    */
   if (err instanceof z.ZodError) {
     const simplifiedError = handleZodError(err);
 
